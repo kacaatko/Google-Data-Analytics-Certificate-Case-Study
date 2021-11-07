@@ -6,12 +6,10 @@ This repository contains code for "Capstone Project - Case Study 1" done as part
 ### Assignment
  * The Case Study packet is [here](https://d3c33hcgiwev3.cloudfront.net/aacF81H_TsWnBfNR_x7FIg_36299b28fa0c4a5aba836111daad12f1_DAC8-Case-Study-1.pdf?Expires=1634947200&Signature=Ke4tMz-f2yKUWUMAKl4xwLNOPwBEkr-gva2ZjM9pehYk23pCt2A0jkTwLPl4hylGyOUz4p26i3u81vymVZml~9s0uOjaCVkvEYNonRCGYjcZvkyGN3Vr89rhrA~o-4fKgynN1F9Vf8Ni3Ig0omFmRZ5~jaLxuV7a-ydOgZUOAE8_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)
 
-* The data source is stored on the only [website](https://divvy-tripdata.s3.amazonaws.com/index.html) with original data from bike sharing company from Chicago. For each month is one csv file. The goal is to make full-year analysis so I pick months 202009-202108.
+* The data source is stored on the only [website](https://divvy-tripdata.s3.amazonaws.com/index.html) with original data from bike sharing company from Chicago. 
 
 
-The Cyclistic bike-share analysis is ahead to answer a question:
-
-***How do annual members and casual riders use Cyclistic bikes differently?***
+The Cyclistic bike-share analysis is ahead to answer a question: ***How do annual members and casual riders use Cyclistic bikes differently?***
 
 
 ### Outputs
