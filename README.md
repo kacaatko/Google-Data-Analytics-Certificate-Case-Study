@@ -17,13 +17,11 @@ The Cyclistic bike-share analysis is ahead to answer a question:
 
 ***How do annual members and casual riders use Cyclistic bikes differently?***
 
+*** 
 
 ### Outputs
-* [Executive Summary of Case Study](https://htmlpreview.github.io/?https://github.com/kacaatko/Google-Data-Analytics-Certificate-Case-Study/blob/main/Coogle-DA-Case-study_executive-summary.html)
-* [Full R code](https://github.com/kacaatko/Google-Data-Analytics-Certificate-Case-Study/blob/main/Coogle%20DA-Case%20study-final.R)
 * [Full report of Case Study](https://htmlpreview.github.io/?https://github.com/kacaatko/Google-Data-Analytics-Certificate-Case-Study/blob/main/Coogle-DA-Case-study-final.html)
-
-* Data Visualization: 
-  + [Tableau](https://public.tableau.com/views/case_study_cyclistic/CaseStudy-DifferenceBetweenTypesofRidersofSharedBikes?:language=en-US&:display_count=n&:origin=viz_share_link)
-  + visualizations [here on GitHub](https://github.com/kacaatko/Google-Data-Analytics-Certificate-Case-Study/tree/main/vizualization)
-* Presentation: [Google Slides](https://docs.google.com/presentation/d/e/2PACX-1vSy8pZaSUMWXZ2O5cMv95g9EtH1XThaVrRvu9ys7eTErNkkxzYaCsTi5VI1lHdn_6szjNhscfk4VGpQ/pub?start=false&loop=false&delayms=3000)
+* [Full R code](https://github.com/kacaatko/Google-Data-Analytics-Certificate-Case-Study/blob/main/Coogle%20DA-Case%20study-final.R)
+* [Presentation in Google Slides](https://docs.google.com/presentation/d/e/2PACX-1vSy8pZaSUMWXZ2O5cMv95g9EtH1XThaVrRvu9ys7eTErNkkxzYaCsTi5VI1lHdn_6szjNhscfk4VGpQ/pub?start=false&loop=false&delayms=3000)
+* [Tableau Dashboard](https://public.tableau.com/views/case_study_cyclistic/CaseStudy-DifferenceBetweenTypesofRidersofSharedBikes?:language=en-US&:display_count=n&:origin=viz_share_link)
+* [visualizations on GitHub](https://github.com/kacaatko/Google-Data-Analytics-Certificate-Case-Study/tree/main/vizualization)
