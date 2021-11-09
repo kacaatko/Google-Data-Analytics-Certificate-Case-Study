@@ -1,0 +1,1496 @@
+---
+title: "Google Data Analytics Capstone"
+author: "Kateřina Kováříková"
+date: "8.11.2021"
+output: 
+  html_document: 
+    toc: yes
+    theme: simplex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message=FALSE, warning=FALSE)
+```
+
+# **Report of Google Data Analytics Case Study - Bike Sharing**
+
+This report is a comprehensive documentation of my work on the study, which is the culmination of the **Google Data Analytics certification program on Coursera**. I would like to point out that this course is really amazing and Google deserves my admiration and thanks.
+
+I choose Case Study 1 given by Google Programme, it includes a business task, dataset, and list of specific deliverables. 
+The Case Study packet is [here](https://d3c33hcgiwev3.cloudfront.net/aacF81H_TsWnBfNR_x7FIg_36299b28fa0c4a5aba836111daad12f1_DAC8-Case-Study-1.pdf?Expires=1634947200&Signature=Ke4tMz-f2yKUWUMAKl4xwLNOPwBEkr-gva2ZjM9pehYk23pCt2A0jkTwLPl4hylGyOUz4p26i3u81vymVZml~9s0uOjaCVkvEYNonRCGYjcZvkyGN3Vr89rhrA~o-4fKgynN1F9Vf8Ni3Ig0omFmRZ5~jaLxuV7a-ydOgZUOAE8_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)
+
+
+
+The whole certification and also analytic process is divided into these steps:
+
+**Ask, Prepare, Process, Analyze, Share, and Act**
+
+
+I did my best. I've continuously edited/improved the code, I've tried to move forward even within the visualizations in ggplot2. Self-critically, I see room for improvement in the graphical side of the presentation. In a real project, I would tweak the overall graphical look and layout of the presentation and maybe use more images or gifs.
+
+*Feel free to comment!*
+
+I am active on [Kaggle](https://www.kaggle.com/kateinakovkov), [GitHub](https://github.com/kacaatko) and [LinkedIn](https://www.linkedin.com/in/kovarikovakaterina/).
+
+***
+***
+
+
+## **ASK** 
+
+### Scenario
+
+The marketing analyst team at Cyclistic, a bike-share company in Chicago, should answer the main question for the director of marketing:
+
+***How do annual members and casual riders use Cyclistic bikes differently?***
+
+The results of analysis will be a starting point for new marketing strategy to convert casual riders into annual members.  The director of marketing believes that maximizing the number of annual members (converting of casual riders) will be key to future growth. The marketing team is interested in analyzing the Cyclistic historical bike trip data to identify trends.
+
+***
+
+### The goal 
+is to produce a report with the following deliverables
+
+1. A clear statement of the business task
+2. A description of all data sources used
+3. Documentation of any cleaning or manipulation of data
+4. A summary of your analysis
+5. Supporting visualizations and key findings
+6. Your top three recommendations based on your analysis
+
+***
+
+### Main questions
+
+* ***What is the problem I am trying to solve?*** 
+  + The problem of company (goal to reach) is converting casual riders into annual members. The data analysts are scanning the real situation to find out informations and knowladge of business for reaching the goal. My task is to answer on question: How do annual members and casual riders use Cyclistic bikes differently? It means that I should identify differ in numbers of rides, distances, duration of rides, using of bike types and stations, and rides over the year/week/day. 
+
+* ***How can your insights drive business decisions?***
+  + My insights should give inputs for marketing strategy.
+
+***
+
+### A clear statement of the business task
+
+*To provide information and knowledge (in text and numerical form and in compelling visualisations) on the differences in the use of cyclistic bikes between types of riders. This knowledge will be an input for marketing recommendations in the new campaign.*
+
+
+***
+***
+
+## **PREPARE**
+
+A description of all data sources used:
+
+* The data source is stored on the only [website](https://divvy-tripdata.s3.amazonaws.com/index.html) with original data from bike sharing company from Chicago. For each month is one csv file. The goal is to make full-year analysis so I pick months 2020/09-2021/08.
+* Data contain basic information about each rides, with time and geographical attributes. 
+* These data are ROCCC, sufficient and [reliable](https://www.divvybikes.com/data-license-agreement).
+
+***
+***
+
+## **PROCESS**
+
+### Key tasks
+
+1. Check the data for errors.
+2. Choose your tools.
+3. Transform the data so you can work with it effectively.
+4. Document the cleaning process.
+	
+**Check the data for errors**
+
+By quick review I found out that there is a problem of many NA values in geographical attributes. But for this case study I will suppose that there is some problem with GPS in some bikes and it is not so important in the question of difference between casual and member riders. My analysis will be completely free of geographical data. It would otherwise be possible to investigate the distance of the source and destination of the journey, and the occupancy of each station. However, it would be appropriate to use a GIS application for such type of analysis.
+
+
+***
+
+### Primary Testing of Tools 
+
+**Excel and Google Console SQL**
+
+First of all, I tried to merge all 12 datasets in Excel using PowerQuery, but the data was so large that Excel was overwhelmed. So in the next step I tried Google SQL, but one of the datasets exceeded 500MB in size (the limit for direct data entry). So I finally started looking into RStudio.
+
+***
+
+### Using R
+
+I decided to use RStudio desktop according to discussion prompt on Coursera platform of Google Data Analytics Certification. 
+I use a guidelines [here](https://docs.google.com/document/d/1TTj5KNKf4BWvEORGm10oNbpwTRk1hamsWJGj6qRWpuI/edit). 
+
+#### STEP 1:  Install and call required packages
+  - tidyverse and plotly for data import and wrangling
+  - ggplot2 for visualization
+  - lubridate for date functions
+
+```{r install r markdown, echo = TRUE, message=FALSE, warning=FALSE, results='hide'}
+install.packages("rmarkdown", repos = 'http://cran.us.r-project.org')
+library(rmarkdown)
+```
+
+```{r install packages, echo = TRUE, message=FALSE, warning=FALSE, results='hide'}
+install.packages("tidyverse", repos = 'http://cran.us.r-project.org')
+install.packages("plotly", repos = 'http://cran.us.r-project.org')
+install.packages("lubridate", repos = 'http://cran.us.r-project.org')
+install.packages("ggplot2", repos = 'http://cran.us.r-project.org')
+```
+
+```{r call packages, echo = TRUE, message=FALSE, warning=FALSE, results='hide'}
+library(tidyverse)
+library(lubridate)
+library(ggplot2)
+library(plotly)
+library(dplyr)
+library(stringr)
+library(readr)
+```
+
+***
+
+#### STEP 2: Input, set up and merge datasets
+
+Upload Divvy datasets (csv files) here:
+
+```{r call data, echo = TRUE, message=FALSE, warning=FALSE, results='hide'}
+X202009_divvy <- read_csv("input data/202009-divvy-tripdata.csv")
+X202010_divvy <- read_csv("input data/202010-divvy-tripdata.csv")
+X202011_divvy <- read_csv("input data/202011-divvy-tripdata.csv")
+X202012_divvy <- read_csv("input data/202012-divvy-tripdata.csv")
+X202101_divvy <- read_csv("input data/202101-divvy-tripdata.csv")
+X202102_divvy <- read_csv("input data/202102-divvy-tripdata.csv")
+X202103_divvy <- read_csv("input data/202103-divvy-tripdata.csv")
+X202104_divvy <- read_csv("input data/202104-divvy-tripdata.csv")
+X202105_divvy <- read_csv("input data/202105-divvy-tripdata.csv")
+X202106_divvy <- read_csv("input data/202106-divvy-tripdata.csv")
+X202107_divvy <- read_csv("input data/202107-divvy-tripdata.csv")
+X202108_divvy <- read_csv("input data/202108-divvy-tripdata.csv")
+```
+Inspect the dataframes and look for incongruencies:
+
+```{r inspect data, echo = TRUE, message=FALSE, warning=FALSE, results='hide'}
+str(X202009_divvy)
+str(X202010_divvy)
+str(X202011_divvy)
+str(X202012_divvy)
+str(X202101_divvy)
+str(X202102_divvy)
+str(X202101_divvy)
+str(X202102_divvy)
+str(X202103_divvy)
+str(X202104_divvy)
+str(X202105_divvy)
+str(X202106_divvy)
+str(X202107_divvy)
+str(X202108_divvy)
+```
+And there is a problem so I have to change 2 data types of 3 files > in total 6 attributes. Lets repair them:
+
+```{r convert types}
+X202009_divvy <- mutate(X202009_divvy, start_station_id = as.character(start_station_id)
+                        , end_station_id = as.character(end_station_id))
+X202010_divvy <- mutate(X202010_divvy, start_station_id = as.character(start_station_id)
+                        , end_station_id = as.character(end_station_id))
+X202011_divvy <- mutate(X202011_divvy, start_station_id = as.character(start_station_id)
+                        , end_station_id = as.character(end_station_id))
+```
+And this is now:
+```{r inspect changed data, echo = TRUE, message=FALSE, warning=FALSE, results='hide'}
+str(X202009_divvy)
+str(X202010_divvy)
+str(X202011_divvy)
+str(X202012_divvy)
+```
+So next step is union data into one data frame:
+```{r union data}
+all_trips <- bind_rows(X202009_divvy, X202010_divvy, X202011_divvy, X202012_divvy, X202101_divvy, X202102_divvy, X202103_divvy, X202104_divvy, X202105_divvy, X202106_divvy, X202107_divvy, X202108_divvy)
+```
+
+***
+
+#### STEP 3: Inspect data
+
+Basic inspect the new table that has been created:
+```{r inspect union table, echo = TRUE, message=FALSE, warning=FALSE, results='hide'}
+colnames(all_trips)  #List of column names
+nrow(all_trips)  #How many rows are in data frame?
+dim(all_trips)  #Dimensions of the data frame?
+head(all_trips)  #See the first 6 rows of data frame.  Also tail(all_trips)
+str(all_trips)  #See list of columns and data types (numeric, character, etc)
+summary(all_trips)  #Statistical summary of data. Mainly for numerics
+```
+See how many items have NA values:
+```{r NA values}
+colSums(is.na(all_trips))
+```
+***
+
+#### STEP 4: Cleaning data and preparations
+
+***Limit data frame***
+
+Because there is more than 10% NA values in geographical data and this case study is not targeted to space analysis (there are better ways to analyze space data - GIS/CleverMaps/...). So ***I don´t need geographycal attributes***, next step is to exclude geography-data from data frames:
+```{r non-geograph data}
+limit_trips <- all_trips %>%  
+  select(-c(start_station_name, start_station_id, end_station_name, end_station_id, start_lat, start_lng, end_lat, end_lng))
+```
+
+See how many items have NA values in limit dataset:
+```{r NA values in limited dataset}
+colSums(is.na(limit_trips))
+```
+***Clean up data from negative time values***
+
+There are not another NA values, so I we can continue to clean dataset. There should be removed data with started_at greater than ended_at:
+```{r clean up data from negative values}
+limit_trips <- limit_trips %>% 
+  filter(limit_trips$started_at < limit_trips$ended_at)
+```
+
+***New columns with date and time type***
+
+To process complex analysis we need to have new date and time attributes. 
+Next I want to create new columns:
+ 1. date
+ 2. hour
+ 3. day
+ 4. month
+ 5. year
+ 6. day of a week
+```{r new columns}
+limit_trips$date <- as.Date(limit_trips$started_at) #The default format is yyyy-mm-dd
+limit_trips$hour <- format(as.POSIXct(limit_trips$started_at,format="%H:%M:%S"),"%H")
+limit_trips$day <- format(as.Date(limit_trips$started_at), "%d")
+limit_trips$month <- format(as.Date(limit_trips$started_at), "%B")
+limit_trips$year <- format(as.Date(limit_trips$started_at), "%Y")
+limit_trips$day_of_week <- format(as.Date(limit_trips$started_at), "%A")
+```
+Now fix order of days of week and months:
+```{r arrenge days and months}
+limit_trips$day_of_week <- ordered(limit_trips$day_of_week, levels=c("pondělí", "úterý", "středa", "čtvrtek", "pátek", "sobota", "neděle"))
+limit_trips$month <- ordered(limit_trips$month, levels=c("leden", "únor", "březen", "duben", "květen", "červen", "červenec", "srpen", "září", "říjen", "listopad", "prosinec"))
+```
+
+And key attribute is ***ride of length*** (in seconds). I also want to format ride_length (Convert "ride_length" from factor to numeric so we can run calculations on the data) and make another column with duration in minutes:
+```{r ride_length with formatting}
+limit_trips$ride_length <- difftime(limit_trips$ended_at,limit_trips$started_at) # ride lenght in seconds
+is.factor(limit_trips$ride_length)
+limit_trips$ride_length <- as.numeric(as.character(limit_trips$ride_length))
+is.numeric(limit_trips$ride_length)
+limit_trips$ride_length_mnt <- limit_trips$ride_length/60 # ride lenght in minutes
+```
+Also hours should be formatted as numeric:
+```{r hour formatting}
+limit_trips$hour <- as.numeric(as.character(limit_trips$hour))
+```
+
+First check of ride_length consistency. While inspecting the table, I noticed that the lengths are very unbalanced and so I want to find out the basic parameters of the attribute.
+```{r ride_lenght check, echo = TRUE, message=FALSE, warning=FALSE, results='hide'}
+summary(limit_trips$ride_length)
+```
+
+***New column with categorization of ride_length***
+
+We can see that ride_length has really different median (769) and mean (1402). So I want to inspect duration of rides more closely. I decided to create a new column to categorize ride_length to see more and do another cleaning. I will assume that length of rides under 1 minute and over 12 hours are erroneous borrowings and so it is desirable to filter out these items.
+ 
+```{r categorization of ride_length}
+limit_trips$ride_length_cat <- ifelse(limit_trips$ride_length_mnt>720, "more than 12 hours",
+                                              ifelse(limit_trips$ride_length_mnt>180,"3-12 hours",
+                                                     ifelse(limit_trips$ride_length_mnt>60,"1-3 hours",
+                                                            ifelse(limit_trips$ride_length_mnt>30,"30-60 minutes",
+                                                                   ifelse(limit_trips$ride_length_mnt>10, "10-30 minutes",
+                                                                          ifelse(limit_trips$ride_length_mnt>5, "5-10 minutes",
+                                                                                 ifelse(limit_trips$ride_length_mnt>1,"1-5 minutes","less than 1 minutes")))))))
+limit_trips$ride_length_cat <- factor(limit_trips$ride_length_cat , levels=c("less than 1 minutes", "1-5 minutes", "5-10 minutes", "10-30 minutes", "30-60 minutes", "1-3 hours", "3-12 hours", "more than 12 hours") )
+```       
+
+***New column with categorization of daytime***
+
+For better analyzing time date of rides by day, I decided to create another category attribute. The categories are not balanced by duration ("night" covers 7hours, "morning" and "noon" cover only 2 hours), categories are made only for comparison between member and casual riders.
+```{r categorization of daytime}
+limit_trips$daytime_cat <- ifelse(limit_trips$hour>22, "night",
+                                              ifelse(limit_trips$hour>18,"evening",
+                                                     ifelse(limit_trips$hour>13,"afternoon",
+                                                            ifelse(limit_trips$hour>11,"noon",
+                                                                   ifelse(limit_trips$hour>9, "morning",
+                                                                          ifelse(limit_trips$hour>5, "early morning", "night"))))))
+limit_trips$daytime_cat <- factor(limit_trips$daytime_cat, levels=c("early morning", "morning", "noon", "afternoon", "evening", "night") )
+```  
+
+***New column with categorization days***
+
+```{r categorization of weekday and weekend}
+limit_trips$day_cat <- ifelse(limit_trips$day_of_week == "sobota", "weekend",
+                                              ifelse(limit_trips$day_of_week == "neděle", "weekend", "weekday"))
+```  
+
+I´ve planned to filter extreme values of ride_length, so I need to find out if it's necessary.
+Lets see the difference on median and mean:
+```{r visualize ride length, echo = TRUE, results='hide'}
+limit_trips %>%
+summarise(number=n(),
+          average_duration=mean(ride_length),
+          median_duration=median(ride_length))
+
+limit_trips %>%
+filter(ride_length_mnt>1&ride_length_mnt<=720) %>%
+summarise(number=n(),
+          average_duration=mean(ride_length),
+          median_duration=median(ride_length))
+```
+The difference is not that significant, so I decided not to reduce the data further. The main point I´ve got is that I should use median instead mean.
+
+***Data are ready to analyze***
+
+After preparation, first summary of ready data:
+```{r summary of ready data, echo = TRUE, results='hide'}
+summary(limit_trips)
+```
+It seems that everything is really fine.
+
+***
+***
+
+## **ANALYZE**
+
+I line up primary lines of my analysis which include specific metrics. It is always looking on difference between types of riders. The visualizations are sited in SHARE phase.
+
+**1. level:**
+
+ * Total data
+
+**2. level:**
+
+ * By type of bike
+ * By ride length category
+ * By daytime category
+ * By day category
+ 
+ 
+ * By hour
+ * By day of week
+ * By month
+ 
+**3. level:**
+
+ * By type of bike + hour
+ * By type of bike + day of a week
+ * By type of bike + month
+ 
+ * By ride length category + hour
+ * By ride length category + day of a week 
+ * By ride length category + month
+
+
+ * By day category + hour
+ * By day category + month
+ 
+ 
+ * By daytime category + day category
+ * By daytime category + day of a week
+ * By daytime category + month
+ 
+**4. level:**
+
+ * By type of bike + hour + day category
+ * By type of bike + month + day category
+ 
+ 
+ * By ride length category + hour + day category
+ * By ride length category + month + day category
+
+
+
+***List of aggregated attributes:***
+
+ * number of rides by type of rider
+ * sum of ride lengths by type of rider
+ * median of sum of ride lengths by type of rider
+ * ratio of number of rides by type of rider
+ * ratio of sum of ride lengths by type of rider
+ 
+### 1. level
+
+**Total data**
+```{r aggregation on first level}
+trips_1level <-
+limit_trips %>%
+group_by(member_casual) %>%
+summarise(number=n(),
+          sum=sum(ride_length_mnt),
+          median_duration=median(ride_length_mnt)) %>%
+mutate(per_num = round(number / sum(number)*100, 2),
+       per_sum = round(sum / sum(sum)*100, 2))
+```
+
+***
+
+### 2. level
+
+**List of lines:** 
+
+ * By type of bike
+ * By ride length category
+ * By daytime category
+ * By day category
+ 
+ 
+ * By hour
+ * By day of week
+ * By month
+ 
+#### By type of bike
+```{r aggregation on second level - by type of bike}
+limit_trips$rideable_type <- factor(limit_trips$rideable_type, levels=c("classic_bike", "electric_bike", "docked_bike"))
+
+trips_rideable_type <-
+limit_trips %>%
+group_by(member_casual, rideable_type) %>%
+summarise(number=n()/1000,
+          sum=sum(ride_length_mnt)/1000,
+          median_duration=median(ride_length_mnt)) %>%
+mutate(per_num = round(number / sum(number)*100, 2),
+       per_sum = round(sum / sum(sum)*100, 2))
+```
+
+#### By ride length category
+```{r aggregation on second level - by ride length category}
+trips_ride_length_cat <-
+limit_trips %>%
+group_by(member_casual, ride_length_cat) %>%
+summarise(number=n()/1000,
+          sum=sum(ride_length_mnt)/1000,
+          median_duration=median(ride_length_mnt)) %>%
+mutate(per_num = round(number / sum(number)*100, 2),
+       per_sum = round(sum / sum(sum)*100, 2))
+```
+
+#### By daytime category
+```{r aggregation on second level - by daytime category}
+trips_daytime <-
+limit_trips %>%
+group_by(member_casual, daytime_cat) %>%
+summarise(number=n()/1000,
+          sum=sum(ride_length_mnt)/1000,
+          median_duration=median(ride_length_mnt)) %>%
+mutate(per_num = round(number / sum(number)*100, 2),
+       per_sum = round(sum / sum(sum)*100, 2))
+```
+
+#### By day category
+```{r aggregation on second level - by day category}
+trips_daycat <-
+limit_trips %>%
+group_by(member_casual, day_cat) %>%
+summarise(number=n()/1000,
+          sum=sum(ride_length_mnt)/1000,
+          median_duration=median(ride_length_mnt)) %>%
+mutate(per_num = round(number / sum(number)*100, 2),
+       per_sum = round(sum / sum(sum)*100, 2))
+```
+
+#### By hour
+```{r aggregation on second level - by hour}
+trips_hours <-
+limit_trips %>%
+group_by(member_casual, hour) %>%
+summarise(number=n()/1000,
+          sum=sum(ride_length_mnt)/1000,
+          median_duration=median(ride_length_mnt)) %>%
+mutate(per_num = round(number / sum(number)*100, 2),
+       per_sum = round(sum / sum(sum)*100, 2))
+```
+#### By day of week
+```{r aggregation on second level - by day of week}
+trips_day <-
+limit_trips %>%
+group_by(member_casual, day_of_week) %>%
+summarise(number=n()/1000,
+          sum=sum(ride_length_mnt)/1000,
+          median_duration=median(ride_length_mnt)) %>%
+mutate(per_num = round(number / sum(number)*100, 2),
+       per_sum = round(sum / sum(sum)*100, 2))
+```
+
+#### By month
+```{r aggregation on second level - by month}
+trips_month <-
+limit_trips %>%
+group_by(member_casual, month) %>%
+summarise(number=n()/1000,
+          sum=sum(ride_length_mnt)/1000,
+          median_duration=median(ride_length_mnt)) %>%
+mutate(per_num = round(number / sum(number)*100, 2),
+       per_sum = round(sum / sum(sum)*100, 2))
+```
+
+***
+
+### 3. level
+
+This level is tricky I guess, but there can hide some really interesting and important insights. In this level the visualization is the main part of analysis. Visualizations are made in SHARE phase.
+
+**List of lines:** 
+
+ * By type of bike + hour
+ * By type of bike + day of a week
+ * By type of bike + month
+
+
+
+ * By ride length category + hour
+ * By ride length category + day of a week 
+ * By ride length category + month
+
+
+
+ * By day category + hour
+ * By day category + month
+
+
+
+ * By daytime category + day category
+ * By daytime category + day of a week
+ * By daytime category + month
+ 
+#### By type of bike + hour
+```{r aggregation at the third level -  by type of bike + hour} 
+trips_hour_bike <-
+limit_trips %>%
+group_by(member_casual, hour, rideable_type) %>%
+summarise(number=n()/1000,
+          sum=sum(ride_length_mnt)/1000,
+          median_duration=median(ride_length_mnt)) %>%
+mutate(per_num = round(number / sum(number)*100, 2),
+       per_sum = round(sum / sum(sum)*100, 2))
+``` 
+
+#### By type of bike + day of a week
+```{r aggregation at the third level -  by type of bike + day of a week} 
+trips_week_bike <-
+limit_trips %>%
+group_by(member_casual, day_of_week, rideable_type) %>%
+summarise(number=n()/1000,
+          sum=sum(ride_length_mnt)/1000,
+          median_duration=median(ride_length_mnt)) %>%
+mutate(per_num = round(number / sum(number)*100, 2),
+       per_sum = round(sum / sum(sum)*100, 2))
+```   
+
+#### By type of bike + month
+```{r aggregation at the third level -  by type of bike + month} 
+trips_month_bike <-
+limit_trips %>%
+group_by(member_casual, month, rideable_type) %>%
+summarise(number=n()/1000,
+          sum=sum(ride_length_mnt)/1000,
+          median_duration=median(ride_length_mnt)) %>%
+mutate(per_num = round(number / sum(number)*100, 2),
+       per_sum = round(sum / sum(sum)*100, 2))
+``` 
+
+#### By ride length category + hour
+```{r aggregation at the third level -  by ride length category + hour} 
+trips_lengthcat_hour <-
+limit_trips %>%
+group_by(member_casual, hour, ride_length_cat) %>%
+summarise(number=n()/1000) %>%
+mutate(per_num = round(number / sum(number)*100, 2))
+``` 
+
+#### By ride length category + day of a week
+```{r aggregation at the third level -  by ride length category + day of a week} 
+trips_lengthcat_day <-
+limit_trips %>%
+group_by(member_casual, day_of_week, ride_length_cat) %>%
+summarise(number=n()/1000) %>%
+mutate(per_num = round(number / sum(number)*100, 2))
+``` 
+
+#### By ride length category + month
+```{r aggregation at the third level - by ride length category + month} 
+trips_lengthcat_month <-
+limit_trips %>%
+group_by(member_casual, month, ride_length_cat) %>%
+summarise(number=n()/1000) %>%
+mutate(per_num = round(number / sum(number)*100, 2))
+``` 
+
+#### By day category + hour
+```{r aggregation at the third level -  by day category + hour} 
+trips_hours_daycat <-
+limit_trips %>%
+group_by(member_casual, day_cat, hour) %>%
+summarise(number=n()/1000,
+          sum=sum(ride_length_mnt)/1000,
+          median_duration=median(ride_length_mnt)) %>%
+mutate(per_num = round(number / sum(number)*100, 2),
+       per_sum = round(sum / sum(sum)*100, 2))
+```      
+
+#### By day category + month
+```{r aggregation at the third level -  by day category + month} 
+trips_month_daycat <-
+limit_trips %>%
+group_by(member_casual, day_cat, month) %>%
+summarise(number=n()/1000,
+          sum=sum(ride_length_mnt)/1000,
+          median_duration=median(ride_length_mnt)) %>%
+mutate(per_num = round(number / sum(number)*100, 2),
+       per_sum = round(sum / sum(sum)*100, 2))
+```
+
+#### By daytime category + day category
+```{r aggregation at the third level - by daytime category + day category} 
+trips_daytime_daycat <-
+limit_trips %>%
+group_by(member_casual, day_cat, daytime_cat) %>%
+summarise(number=n()/1000,
+          sum=sum(ride_length_mnt)/1000,
+          median_duration=median(ride_length_mnt)) %>%
+mutate(per_num = round(number / sum(number)*100, 2),
+       per_sum = round(sum / sum(sum)*100, 2))
+```
+
+#### By daytime category + day of a week
+```{r aggregation at the third level - by daytime category + day of a week} 
+trips_daytime_day <-
+limit_trips %>%
+group_by(member_casual, day_of_week, daytime_cat) %>%
+summarise(number=n()/1000,
+          sum=sum(ride_length_mnt)/1000,
+          median_duration=median(ride_length_mnt)) %>%
+mutate(per_num = round(number / sum(number)*100, 2),
+       per_sum = round(sum / sum(sum)*100, 2))
+```
+
+#### By daytime category + month
+```{r aggregation at the third level - by daytime category + month} 
+trips_daytime_month <-
+limit_trips %>%
+group_by(member_casual, month, daytime_cat) %>%
+summarise(number=n()/1000,
+          sum=sum(ride_length_mnt)/1000,
+          median_duration=median(ride_length_mnt)) %>%
+mutate(per_num = round(number / sum(number)*100, 2),
+       per_sum = round(sum / sum(sum)*100, 2))
+```
+
+***
+
+### 4. level
+
+**List of lines:** 
+
+ * By type of bike + hour + day category
+ * By type of bike + month + day category
+
+
+
+ * By ride length category + hour + day category
+ * By ride length category + month + day category
+ 
+ 
+#### By type of bike + hour + day category
+```{r aggregation at the 4th level - by type of bike + hour + day category}
+trips_bike_hour_daycat <-
+limit_trips %>%
+  group_by(member_casual, hour, rideable_type, day_cat) %>%
+  summarise(number=n()/1000,
+            sum=sum(ride_length_mnt)/1000,
+            median_duration=median(ride_length_mnt)) %>%
+  mutate(per_num = round(number / sum(number)*100, 2),
+         per_sum = round(sum / sum(sum)*100, 2))
+```
+
+#### By type of bike + month + day category
+```{r aggregation at the 4th level - by type of bike + month + day category}
+trips_bike_month_daycat <-
+limit_trips %>%
+  group_by(member_casual, month, rideable_type, day_cat) %>%
+  summarise(number=n()/1000,
+            sum=sum(ride_length_mnt)/1000,
+            median_duration=median(ride_length_mnt)) %>%
+  mutate(per_num = round(number / sum(number)*100, 2),
+         per_sum = round(sum / sum(sum)*100, 2))
+```
+
+#### By ride length category + hour + day category
+```{r aggregation at the 4th level - by ride length category + hour + day category}
+trips_lengthcat_hour_daycat <-
+limit_trips %>%
+  group_by(member_casual, hour, day_cat, ride_length_cat) %>%
+  summarise(number=n()/1000,
+            sum=sum(ride_length_mnt)/1000,
+            median_duration=median(ride_length_mnt)) %>%
+  mutate(per_num = round(number / sum(number)*100, 2),
+         per_sum = round(sum / sum(sum)*100, 2))
+```
+
+#### By ride length category + month + day category
+```{r aggregation at the 4th level - by ride length category + month + day category}
+trips_lengthcat_month_daycat <-
+limit_trips %>%
+  group_by(member_casual, month, day_cat, ride_length_cat) %>%
+  summarise(number=n()/1000,
+            sum=sum(ride_length_mnt)/1000,
+            median_duration=median(ride_length_mnt)) %>%
+  mutate(per_num = round(number / sum(number)*100, 2),
+         per_sum = round(sum / sum(sum)*100, 2))
+```
+
+***
+***
+
+## **SHARE**
+
+1. aggregations
+2. visualizations
+    + in RStudio - raw R code is [here](https://github.com/kacaatko/Google-Data-Analytics-Certificate-Case-Study/blob/3b4b6c19de9ca0b4e53e51e0b48d704574b53346/Coogle%20DA-Case%20study-final.R)
+    + in Tableau - public dashboard is [here](https://public.tableau.com/views/case_study_cyclistic/CaseStudy-DifferenceBetweenTypesofRidersofSharedBikes?:language=en-US&:display_count=n&:origin=viz_share_link).
+3. presentation - link to my Google Slides presentation is [here](https://docs.google.com/presentation/d/e/2PACX-1vSy8pZaSUMWXZ2O5cMv95g9EtH1XThaVrRvu9ys7eTErNkkxzYaCsTi5VI1lHdn_6szjNhscfk4VGpQ/pub?start=false&loop=false&delayms=3000)
+
+***
+
+### Aggregation data to tables
+
+New tables from aggregated data of summary data and median of ride length:
+```{r aggregations for export}
+#aggregation of all attributes to number of rides and sum of ride length
+trips_summary <- 
+  limit_trips %>%
+  group_by(member_casual, rideable_type, month, day_cat, day_of_week, daytime_cat, ride_length_cat) %>%
+  summarise(number=n(),
+            total_duration=sum(ride_length_mnt))
+write.csv(trips_summary, file = 'trips_summary.csv')
+
+# aggregation of median of ride length by datetime attributes and categories
+med_month <- aggregate(limit_trips$ride_length_mnt ~ limit_trips$member_casual +
+                     limit_trips$month,FUN = mean)
+write.csv(med_month, file = 'med_month.csv')
+
+med_day_cat <- aggregate(limit_trips$ride_length_mnt ~ limit_trips$member_casual +
+                     limit_trips$day_cat,FUN = mean)
+write.csv(med_day_cat, file = 'med_day_cat.csv')
+
+med_day <- aggregate(limit_trips$ride_length_mnt ~ limit_trips$member_casual +
+                     limit_trips$day_of_week,FUN = mean)
+write.csv(med_day, file = 'med_day.csv')
+
+med_time_cat <- aggregate(limit_trips$ride_length_mnt ~ limit_trips$member_casual +
+                     limit_trips$ride_length_cat,FUN = mean)
+write.csv(med_time_cat, file = 'med_time_cat.csv')
+
+med_bike_type <- aggregate(limit_trips$ride_length_mnt ~ limit_trips$member_casual +
+                     limit_trips$rideable_type,FUN = mean)
+write.csv(med_bike_type, file = 'med_bike_type.csv')
+```
+
+***
+
+### Visualizations
+
+#### 1. level
+
+**Total data**
+```{r visualize type of riders}
+#compute the position of labels
+trips_1level <- trips_1level %>%
+  arrange(desc(member_casual)) %>%
+  mutate(ynum = cumsum(per_num)- 0.5*per_num, ysum = cumsum(per_sum)- 0.5*per_sum)
+
+#pie chart of number of rides with labels
+ggplot(trips_1level, aes(x="", y=per_num, fill=member_casual)) +
+  geom_bar(stat="identity", width=1, color = "white") +
+  coord_polar("y", start=0) +
+  theme_void() + 
+  theme(legend.position="right") +
+  geom_text(aes(y = ynum, label = paste(per_num, "%")), color = "white", size=4) +
+  labs(title = "How type of riders differ in number of rides?", fill= "type of rider") +
+  scale_fill_brewer(palette="Set1")
+ggsave("V1-1.png")
+
+#pie chart of sum of ride length with labels
+ggplot(trips_1level, aes(x="", y=per_sum, fill=member_casual)) +
+  geom_bar(stat="identity", width=1, color = "white") +
+  coord_polar("y") +
+  theme_void() +
+  theme(legend.position="right") +
+  geom_text(aes(y = ysum, label = paste(per_sum, "%")), color = "white", size=4) +
+  labs(title = "How type of riders differ in summary duration of rides?", fill= "type of rider") +
+  scale_fill_brewer(palette="Set1")
+ggsave("V1-2.png")
+```
+
+
+#### 2. level
+
+**List of lines:**
+
+ * By type of bike
+ * By ride length category
+ * By daytime category
+ * By day category
+
+
+ * By hour
+ * By day of week
+ * By month
+
+
+##### 2.1 By type of bike
+```{r visualize - by type of bike}
+#compute the position of labels
+trips_rideable_type <- trips_rideable_type %>%
+  arrange(desc(rideable_type)) %>%
+  mutate(ynum = cumsum(per_num)- 0.5*per_num, ysum = cumsum(per_sum)- 0.5*per_sum)
+
+#ratio of number of rides
+ggplot(trips_rideable_type, aes(x="", y=per_num, fill=rideable_type)) +
+  geom_bar(stat="identity", width=1, color = "white") +
+  coord_polar("y", start=0) +
+  theme_void() + 
+  theme(legend.position="right") +
+  geom_text(aes(y = ynum, label = paste(per_num, "%")), color = "white", size=4) +
+  labs(title = "How number of rides are distributed by type of bikes?", fill= "type of bikes") +
+  facet_wrap(~member_casual)
+ggsave("V2-1-1.png")
+
+#ratio of sum of ride lengths
+ggplot(trips_rideable_type, aes(x="", y=per_sum, fill=rideable_type)) +
+  geom_bar(stat="identity", width=1, color = "white") +
+  coord_polar("y", start=0) +
+  theme_void() + 
+  theme(legend.position="right") +
+  geom_text(aes(y = ysum, label = paste(per_sum, "%")), color = "white", size=4) +
+  labs(title = "How sum of ride lengths are distributed by type of bikes?", fill= "type of bikes") +
+  facet_wrap(~member_casual)
+ggsave("V2-1-2.png")
+
+#column chart of median of sum of ride lengths
+ggplot(trips_rideable_type, aes(x = member_casual, y = median_duration, fill = rideable_type)) +
+  geom_col(position = "dodge") +
+  geom_text(aes(label = round(median_duration,1)), vjust = 1.5, colour = "white", position = position_dodge(.9)) +
+  labs(title = "How medians of ride lengths are different by type of bikes?", fill= "type of bikes",x = "type of riders", y = "median of ride length (mnt)")
+ggsave("V2-1-3.png")
+```
+ 
+##### 2.2 By ride length category
+```{r visualize - by ride length category}
+#compute the position of labels
+trips_ride_length_cat <- trips_ride_length_cat %>%
+  arrange(desc(trips_ride_length_cat)) %>%
+  mutate(ynum = cumsum(per_num)- 0.5*per_num, ysum = cumsum(per_sum)- 0.5*per_sum)
+
+#ratio of number of rides
+ggplot(trips_ride_length_cat, aes(x="", y=per_num, fill=ride_length_cat)) +
+  geom_bar(stat="identity", width=1, color = "white") +
+  coord_polar("y", start=0) +
+  theme_void() + 
+  theme(legend.position="right") +
+  geom_text(aes(y = ynum, label = paste(per_num, "%")), color = "white", size=4) +
+  labs(title = "How category of ride lenght are distributed by types of riders?", fill= "category of ride lenght") +
+  scale_fill_brewer(palette="Set1") +
+  facet_wrap(~member_casual)
+ggsave("V2-2-1.png")
+
+#point plot with trendline - number with sum of ride length by each day in a year (there is limit of ride length because of one extreme value)
+point_trips_ridecat <- limit_trips %>%
+  filter(ride_length_mnt < 1000) %>%
+  group_by(member_casual, ride_length_cat, date) %>%
+  summarise(number=n()/1000,
+            sum=sum(ride_length_mnt)/1000,
+            median_duration=median(ride_length_mnt))
+
+ggplot(point_trips_ridecat, aes(number, sum, colour = ride_length_cat)) +
+  geom_point(aes(colour = ride_length_cat), size = 2) +
+  facet_wrap(~member_casual) +
+  geom_smooth(method = "lm", se = FALSE) +
+  scale_colour_brewer(palette="Set1") +
+  labs(title = "Patterns of distributing categories of ride length by number of rides and sum of ride length for each day", x = "number of rides (ths)", y = "sum of ride length(ths mnt)", colour = "category of ride length")
+ggsave("V2-2-2.png")
+```
+
+##### 2.3 By daytime category
+```{r visualize - by daytime category}
+#compute the position of labels
+trips_daytime <- trips_daytime %>%
+  arrange(desc(trips_daytime)) %>%
+  mutate(ynum = cumsum(per_num)- 0.5*per_num, ysum = cumsum(per_sum)- 0.5*per_sum)
+
+#pie chart of ratio of number of rides
+ggplot(trips_daytime, aes(x="", y=per_num, fill=daytime_cat)) +
+  geom_bar(stat="identity", width=1, color = "white") +
+  coord_polar("y", start=0) +
+  theme_void() + 
+  theme(legend.position="right") +
+  geom_text(aes(y = ynum, label = paste(per_num, "%")), color = "black", size=3) +
+  scale_fill_brewer(palette="Set2") +
+  labs(title = "How number of rides are distributed by daytime category?", fill= "daytime category") +
+  facet_wrap(~member_casual)
+ggsave("V2-3-1.png")
+```
+
+##### 2.4 By day category
+```{r visualize - by day category}
+#compute the position of labels
+trips_daycat <- trips_daycat %>%
+  arrange(desc(day_cat)) %>%
+  mutate(ynum = cumsum(per_num)- 0.5*per_num, ysum = cumsum(per_sum)- 0.5*per_sum)
+
+#ratio of number of rides
+ggplot(trips_daycat, aes(x="", y=per_num, fill=day_cat)) +
+  geom_bar(stat="identity", width=1, color = "white") +
+  coord_polar("y", start=0) +
+  theme_void() + 
+  theme(legend.position="right") +
+  geom_text(aes(y = ynum, label = paste(per_num, "%")), color = "white", size=4) +
+  scale_fill_brewer(palette="Dark2") +
+  labs(title = "How number of rides are distributed by day category?", fill= "day category") +
+  facet_wrap(~member_casual)
+ggsave("V2-4-1.png")
+
+#column chart of median of sum of ride lengths
+ggplot(trips_daycat, aes(x = member_casual, y = median_duration, fill = day_cat)) +
+  geom_col(position = "dodge") +
+  scale_fill_brewer(palette="Dark2") +
+  geom_text(aes(label = round(median_duration,1)), vjust = 1.5, colour = "white", position = position_dodge(.9)) +
+  labs(title = "How medians of ride lengths are different by day category?", fill= "day category",x = "type of riders", y = "median of ride length (mnt)")
+ggsave("V2-4-2.png")
+```
+
+##### 2.5 By hour
+```{r visualize - by hour}
+#line chart of number of rides by hour
+ggplot(trips_hours,aes(x = hour, y = number, group=member_casual, color=member_casual)) +
+  geom_line(aes(linetype=member_casual), size=1) +
+  geom_point(size=3) +
+  scale_colour_brewer(palette="Set1") +
+  labs(title = "How numbers of rides are diferent in a day by type of riders?", fill= "type of riders",x = "hours", y = "number of rides (ths)")
+ggsave("V2-5-1.png")
+
+#line chart of sum of ride length by hour
+ggplot(trips_hours,aes(x = hour, y = sum, group=member_casual, color=member_casual)) +
+  geom_line(aes(linetype=member_casual), size=1) +
+  geom_point(size=3) +
+  scale_colour_brewer(palette="Set1") +
+  labs(title = "How sum of ride length are diferent in a day by type of riders?", fill= "type of riders",x = "hours", y = "sum of ride length (ths mnt)")
+ggsave("V2-5-2.png")
+
+#line chart of median of ride length by hour
+ggplot(trips_hours,aes(x = hour, y = median_duration, group=member_casual, color=member_casual)) +
+  geom_line(aes(linetype=member_casual), size=1) +
+  geom_point(size=3) +
+  scale_colour_brewer(palette="Set1") +
+  labs(title = "How median of ride length are diferent in a day by type of riders?", fill= "type of riders",x = "hours", y = "median of ride length (ths mnt)")
+ggsave("V2-5-3.png")
+```
+
+##### 2.6 By month
+```{r visualize - by month}
+#number of rides by riders - line chart with points
+ggplot(trips_month, aes(x = month, y = number, group=member_casual, color=member_casual)) +
+  geom_line(aes(linetype=member_casual), size=1) +
+  geom_point(size=3) +
+  scale_colour_brewer(palette="Set1") +
+  labs(title = "How numbers of rides are diferent in a year by type of riders?", fill= "type of riders",x = "month", y = "number of rides (ths)")
+ggsave("V2-6-1.png", width = 9, height = 6)
+
+#sum of ride length by riders - line chart with points
+ggplot(trips_month, aes(x = month, y = sum, group=member_casual, color=member_casual)) +
+  geom_line(aes(linetype=member_casual), size=1) +
+  geom_point(size=3) +
+  scale_colour_brewer(palette="Set1") +
+  scale_x_discrete(guide = guide_axis(angle = 90)) +
+  labs(title = "How sum of ride lenghts are distributed in a year by type of riders?", fill= "type of riders",x = "month", y = "median lenght of ride (ths mnt)")
+ggsave("V2-6-2.png", width = 9, height = 6)
+
+#median of ride length by riders - bar chart
+ggplot(trips_month, aes(x = month, y = median_duration, fill = member_casual)) +
+  geom_col(position = "dodge") +
+  scale_fill_brewer(palette="Set1") +
+  scale_x_discrete(guide = guide_axis(angle = 90)) +
+  geom_text(aes(label = round(median_duration,1)), vjust = 1.5, colour = "white", size = 2.5, position = position_dodge(.9)) +
+  labs(title = "How median of ride lenghts are diferent in a year by type of riders?", fill= "type of riders",x = "month", y = "median lenght of ride (mnt)")
+ggsave("V2-6-3.png", width = 9, height = 6)
+```
+
+##### 2.7 By day of week
+```{r visualize - by day of week}
+#number of rides by riders - line chart with points
+ggplot(trips_day, aes(x = day_of_week, y = number, group=member_casual, color=member_casual)) +
+  geom_line(aes(linetype=member_casual), size=1) +
+  geom_point(size=3) +
+  scale_colour_brewer(palette="Set1") +
+  labs(title = "How numbers of rides are distributed in a week by type of riders?", fill= "type of riders",x = "day of week", y = "number of rides (ths)")
+ggsave("V2-7-1.png")
+
+#sum of ride length by riders - line chart with points
+ggplot(trips_day, aes(x = day_of_week, y = sum, group=member_casual, color=member_casual)) +
+  geom_line(aes(linetype=member_casual), size=1) +
+  geom_point(size=3) +
+  scale_colour_brewer(palette="Set1") +
+  labs(title = "How sum of ride lenght are distributed in a week by type of riders?", fill= "type of riders",x = "day of week", y = "sum of ride lenght (ths mnt)")
+ggsave("V2-7-2.png")
+
+#median of ride length by riders - bar chart
+ggplot(trips_day, aes(x = day_of_week, y = median_duration, fill = member_casual)) +
+  geom_col(position = "dodge") +
+  scale_fill_brewer(palette="Set1") +
+  geom_text(aes(label = round(median_duration,1)), vjust = 1.5, colour = "white", position = position_dodge(.9)) +
+  labs(title = "How ride median of lenghts are diferent in a week by type of riders?", fill= "type of riders",x = "day of week", y = "median lenght of ride (mnt)")
+ggsave("V2-7-3.png")
+```
+
+
+#### 3. level
+
+**List of lines:**
+
+ * By type of bike + hour
+ * By type of bike + day of a week
+ * By type of bike + month
+
+
+ * By ride length category + hour
+ * By ride length category + day of a week 
+ * By ride length category + month
+
+
+ * By day category + hour
+ * By day category + month
+
+
+ * By daytime category + day category
+ * By daytime category + day of a week
+ * By daytime category + month
+
+
+##### 3.1 By type of bike + hour
+```{r visualize - by type of bike + hour}
+#line plot of number of rides in a day by type of bike
+ggplot(trips_hour_bike, aes(x = hour, y = number, group=rideable_type, color=rideable_type)) +
+  geom_line(aes(linetype=rideable_type), size=1) +
+  geom_point(size=3) +
+  facet_wrap(~member_casual) +
+  labs(title = "How number of rides by types of bikes are diferent in a hour of a day?", fill= "type of riders",x = "hour", y = "percent of number of rides")
+ggsave("V3-1-1.png")
+
+#line plot of sum of ride length in a day by type of bike
+ggplot(trips_hour_bike, aes(x = hour, y = sum, group=rideable_type, color=rideable_type)) +
+  geom_line(aes(linetype=rideable_type), size=1) +
+  geom_point(size=3) +
+  facet_wrap(~member_casual) +
+  labs(title = "How sum of ride lenght by types of bikes are diferent in a hour of a day?", fill= "type of riders",x = "hour", y = "percent of sum of ride lenght")
+ggsave("V3-1-2.png")
+
+#line plot of median of ride length in a day by type of bike
+ggplot(trips_hour_bike, aes(x = hour, y = median_duration, group=rideable_type, color=rideable_type)) +
+  geom_line(aes(linetype=rideable_type), size=1) +
+  geom_point(size=3) +
+  facet_wrap(~member_casual) +
+  labs(title = "How median of ride lenght by types of bikes are diferent in a hour of a day?", fill= "type of riders",x = "hour", y = "median of ride lenght (mnt)")
+ggsave("V3-1-3.png")
+```
+
+##### 3.2 By type of bikes + day of a week
+```{r visualize - by types of bike + day of a week}
+#line plot of number of rides in a week by type of bike
+ggplot(trips_week_bike, aes(x = day_of_week, y = number, group=rideable_type, color=rideable_type)) +
+  geom_line(aes(linetype=rideable_type), size=1) +
+  geom_point(size=3) +
+  facet_wrap(~member_casual) +
+  labs(title = "How number of rides by types of bikes are diferent in a day of week?", fill= "type of riders",x = "day of week", y = "percent of number of rides")
+ggsave("V3-2-1.png")
+
+#line plot of sum of ride length in a week by type of bike
+ggplot(trips_week_bike, aes(x = day_of_week, y = sum, group=rideable_type, color=rideable_type)) +
+  geom_line(aes(linetype=rideable_type), size=1) +
+  geom_point(size=3) +
+  facet_wrap(~member_casual) +
+  labs(title = "How sum of ride lenght by types of bikes are diferent in a day of week?", fill= "type of riders",x = "day of week", y = "percent of sum of ride lenght")
+ggsave("V3-2-2.png")
+
+#line plot of median of ride length in a day by type of bike
+ggplot(trips_week_bike, aes(x = day_of_week, y = median_duration, group=rideable_type, color=rideable_type)) +
+  geom_line(aes(linetype=rideable_type), size=1) +
+  geom_point(size=3) +
+  facet_wrap(~member_casual) +
+  labs(title = "How median of ride lenght by types of bikes are diferent in a day of week?", fill= "type of riders",x = "day of week", y = "median of ride lenght (mnt)")
+ggsave("V3-2-3.png")
+```
+
+##### 3.3 By type of bike + month
+```{r visualize - by type of bike + month}
+#bar chart of ration of number of rides in a year by type of bike
+ggplot(trips_month_bike, aes(x = month, y = per_num, fill=rideable_type)) +
+  geom_col(color="white") +
+  scale_x_discrete(guide = guide_axis(angle = 90)) +
+  facet_wrap(~member_casual) +
+  labs(title = "How ration of number of rides by types of bikes are diferent in a month of a year?", fill= "type of riders",x = "month of a year", y = "percent of number of rides")
+ggsave("V3-3-1.png")
+
+#bar chart of ration of sum of ride length in a year by type of bike
+ggplot(trips_month_bike, aes(x = month, y = per_sum, fill=rideable_type)) +
+  geom_col(color="white") +
+  scale_x_discrete(guide = guide_axis(angle = 90)) +
+  facet_wrap(~member_casual) +
+  labs(title = "How ration of sum of ride lenght by types of bikes are diferent in a month of a year?", fill= "type of riders",x = "month of a year", y = "percent of sum of ride lenght")
+ggsave("V3-3-2.png")
+
+#bar dodge chart of median of ride length in a year by type of bike
+ggplot(trips_month_bike, aes(x = month, y = median_duration, fill=rideable_type)) +
+  geom_col(position = "dodge", color="white") +
+  scale_x_discrete(guide = guide_axis(angle = 90)) +
+  facet_wrap(~member_casual) +
+  labs(title = "How median of ride lenght by types of bikes are diferent in a month of a year?", fill= "type of riders",x = "month of a year", y = "median of ride lenght (mnt)")
+ggsave("V3-3-3.png")
+```
+
+##### 3.4 By ride length category + hour
+```{r visualize - by ride length category + hour}
+#bar plot of ration of number of rides for each hour by ride length category
+ggplot(trips_lengthcat_hour, aes(x = hour, y = per_num, fill=ride_length_cat)) +
+  geom_col(color="white") +
+  facet_wrap(~member_casual) +
+  labs(title = "How ration of number of rides by ride length category are diferent in a day?", fill= "ride length category",x = "hour", y = "percent of number of rides")
+ggsave("V3-4-1.png")
+
+#line plot with points of number of rides for each hour by ride length category
+ggplot(trips_lengthcat_hour, aes(x = hour, y = number, group=ride_length_cat, color=ride_length_cat)) +
+  geom_line(size=1) +
+  geom_point(size=3) +
+  facet_wrap(~member_casual) +
+  labs(title = "How number of rides by categories of ride lenght are diferent in a day?", color= "ride length category",x = "hour", y = "number of rides (ths)")
+ggsave("V3-4-2.png")
+```
+
+##### 3.5 By ride length category + day of a week
+```{r visualize - by ride length category + day of a week}
+#bar plot of ration of number of rides for each day of a week by ride length category
+ggplot(trips_lengthcat_day, aes(x = day_of_week, y = per_num, fill=ride_length_cat)) +
+  geom_col(color="white") +
+  scale_x_discrete(guide = guide_axis(angle = 90)) +
+  facet_wrap(~member_casual) +
+  labs(title = "How ration of number of rides by ride length category are diferent in a week?", fill= "ride length category",x = "day of a week", y = "percent of number of rides")
+ggsave("V3-5-1.png")
+
+#line plot with points of number of rides for each day of a week by ride length category
+ggplot(trips_lengthcat_day, aes(x = day_of_week, y = number, group=ride_length_cat, color=ride_length_cat)) +
+  geom_line(aes(linetype=ride_length_cat), size=1) +
+  geom_point(size=3) +
+  scale_x_discrete(guide = guide_axis(angle = 90)) +
+  facet_wrap(~member_casual) +
+  labs(title = "How number of rides by categories of ride lenght are diferent in a week?", fill= "ride length category",x = "day of week", y = "number of rides (ths)")
+ggsave("V3-5-2.png")
+```
+
+##### 3.6 By ride length category + month
+```{r visualize - by ride length category + month}
+#bar plot of ration of number of rides for each month of a year by ride length category
+ggplot(trips_lengthcat_month, aes(x = month, y = per_num, fill=ride_length_cat)) +
+  geom_col(color="white") +
+  scale_x_discrete(guide = guide_axis(angle = 90)) +
+  facet_wrap(~member_casual) +
+  labs(title = "How ration of number of rides by ride length category are diferent in a year?", fill= "ride length category",x = "month", y = "percent of number of rides")
+ggsave("V3-6-1.png")
+
+#line plot with points of number of rides for each month of a year by ride length category
+ggplot(trips_lengthcat_month, aes(x = month, y = number, group=ride_length_cat, color=ride_length_cat)) +
+  geom_line(aes(linetype=ride_length_cat), size=1) +
+  geom_point(size=3) +
+  scale_x_discrete(guide = guide_axis(angle = 90)) +
+  facet_wrap(~member_casual) +
+  labs(title = "How number of rides by categories of ride lenght are diferent in a year?", fill= "ride length category",x = "month", y = "number of rides (ths)")
+ggsave("V3-6-2.png")
+```
+
+##### 3.7 By day category + hour
+```{r visualize - by day category + hour}
+#line chart of number of rides in a day
+ggplot(trips_hours_daycat,aes(x = hour, y = number, group=member_casual, color=member_casual)) +
+  geom_line(aes(linetype=member_casual), size=1) +
+  geom_point(size=3) +
+  scale_colour_brewer(palette="Set1") +
+  labs(title = "How numbers of rides are diferent in a day and by day category?", fill= "type of riders",x = "hours", y = "number of rides (ths)") +
+  facet_wrap(~day_cat)
+ggsave("V3-7-1.png")
+
+#line chart of sum of ride length in a day
+ggplot(trips_hours_daycat,aes(x = hour, y = sum, group=member_casual, color=member_casual)) +
+  geom_line(aes(linetype=member_casual), size=1) +
+  geom_point(size=3) +
+  scale_colour_brewer(palette="Set1") +
+  labs(title = "How sum of ride length are diferent in a day and by day category?", fill= "type of riders",x = "hours", y = "sum of ride length (ths mnt)") +
+  facet_wrap(~day_cat)
+ggsave("V3-7-2.png")
+
+#line chart of median of ride length in a day
+ggplot(trips_hours_daycat,aes(x = hour, y = median_duration, group=member_casual, color=member_casual)) +
+  geom_line(aes(linetype=member_casual), size=1) +
+  geom_point(size=3) +
+  scale_colour_brewer(palette="Set1") +
+  labs(title = "How median of ride length are diferent in a day and by day category?", fill= "type of riders",x = "hours", y = "median of ride length (ths mnt)") +
+  facet_wrap(~day_cat)
+ggsave("V3-7-3.png")
+```
+
+##### 3.8 By day category + month
+```{r visualize - by day category + month}
+#line chart of number of rides in a year by day category
+ggplot(trips_month_daycat,aes(x = month, y = number, group=member_casual, color=member_casual)) +
+  geom_line(aes(linetype=member_casual), size=1) +
+  geom_point(size=3) +
+  scale_x_discrete(guide = guide_axis(angle = 90)) +
+  scale_colour_brewer(palette="Set1") +
+  labs(title = "How numbers of rides are diferent in a year and by day category?", fill= "type of riders",x = "months", y = "number of rides (ths)") +
+  facet_wrap(~day_cat)
+ggsave("V3-8-1.png")
+
+#line chart of sum of ride length in a year by day category
+ggplot(trips_month_daycat,aes(x = month, y = sum, group=member_casual, color=member_casual)) +
+  geom_line(aes(linetype=member_casual), size=1) +
+  geom_point(size=3) +
+  scale_x_discrete(guide = guide_axis(angle = 90)) +
+  scale_colour_brewer(palette="Set1") +
+  labs(title = "How sum of ride length are diferent in a year and by day category?", fill= "type of riders",x = "months", y = "sum of ride length (ths mnt)") +
+  facet_wrap(~day_cat)
+ggsave("V3-8-2.png")
+
+#line chart of median of ride length in a year by day category
+ggplot(trips_month_daycat,aes(x = month, y = median_duration, group=member_casual, color=member_casual)) +
+  geom_line(aes(linetype=member_casual), size=1) +
+  geom_point(size=3) +
+  scale_x_discrete(guide = guide_axis(angle = 90)) +
+  scale_colour_brewer(palette="Set1") +
+  labs(title = "How median of ride length are diferent in a year and by day category?", fill= "type of riders",x = "months", y = "median of ride length (mnt)") +
+  facet_wrap(~day_cat)
+ggsave("V3-8-3.png")
+```
+
+##### 3.9 By daytime category + day category
+```{r visualize - by daytime category + day category}
+#bar chart of ration of number of rides for each daytime category by day category
+ggplot(trips_daytime_daycat, aes(x = day_cat, y = per_num, fill=daytime_cat)) +
+  geom_col(color="white") +
+  facet_wrap(~member_casual) +
+  scale_fill_brewer(palette="Set2") +
+  labs(title = "How ration of number of rides by daytime category are diferent in a week?", fill= "daytime category",x = "day category", y = "percent of number of rides")
+ggsave("V3-9-1.png")
+```
+
+##### 3.10 By daytime category + day of a week
+```{r visualize - by daytime category + day of a week}
+#line chart of number of rides for each daytime category by day of a week 
+ggplot(trips_daytime_day, aes(x = day_of_week, y = number, group=daytime_cat, color=daytime_cat)) +
+  geom_line(aes(linetype=daytime_cat), size=1) +
+  geom_point(size=3) +
+  scale_x_discrete(guide = guide_axis(angle = 90)) +
+  facet_wrap(~member_casual) +
+  scale_color_brewer(palette="Set2") +
+  labs(title = "How number of rides by daytime categories are diferent by day of a week?", fill= "daytime category",x = "day of a week", y = "number of rides (ths)")
+ggsave("V3-10-1.png")
+
+#bar chart of ration of number of rides for each daytime category by day 
+ggplot(trips_daytime_day, aes(x = day_of_week, y = per_num, fill=daytime_cat)) +
+  geom_col(color="white") +
+  scale_x_discrete(guide = guide_axis(angle = 90)) +
+  facet_wrap(~member_casual) +
+  scale_fill_brewer(palette="Set2") +
+  labs(title = "How ration of number of rides by daytime category are diferent by day of a week?", fill= "daytime category",x = "day of a week", y = "percent of number of rides")
+ggsave("V3-10-2.png")
+```
+
+##### 3.11 By daytime category + month
+```{r visualize - by daytime category + month}
+#line chart of number of rides for each daytime category by month 
+ggplot(trips_daytime_month, aes(x = month, y = number, group=daytime_cat, color=daytime_cat)) +
+  geom_line(aes(linetype=daytime_cat), size=1) +
+  geom_point(size=3) +
+  scale_x_discrete(guide = guide_axis(angle = 90)) +
+  facet_wrap(~member_casual) +
+  labs(title = "How number of rides by daytime categories are diferent in a year?", fill= "daytime category",x = "month", y = "number of rides (ths)")
+ggsave("V3-11-1.png")
+
+#bar chart of ration of number of rides for each daytime category by month 
+ggplot(trips_daytime_month, aes(x = month, y = per_num, fill=daytime_cat)) +
+  geom_col(color="white") +
+  scale_x_discrete(guide = guide_axis(angle = 90)) +
+  facet_wrap(~member_casual) +
+  labs(title = "How ration of number of rides by daytime categories are diferent in a year?", fill= "daytime category",x = "month", y = "percent of number of rides")
+ggsave("V3-11-2.png")
+```
+
+
+#### 4. level
+
+**List of lines:**
+
+ * By type of bike + hour + day category
+ * By type of bike + month + day category
+
+
+ * By ride length category + hour + day category
+ * By ride length category + month + day category 
+
+
+##### 4.1 By type of bike + hour + day category
+```{r visualize - by type of bike + hour + day category}
+#grid of line plots of number of rides in a day by type of bike and by day category
+ggplot(trips_bike_hour_daycat, aes(x = hour, y = number, group=rideable_type, group=day_cat, color=rideable_type)) +
+  geom_line(aes(linetype=rideable_type), size=1) +
+  geom_point(size=3) +
+  facet_grid(day_cat ~ member_casual, margins = FALSE) +
+  labs(title = "How number of rides by type of bike and day category are diferent in a day?", fill= "type of riders",x = "hour", y = "number of rides (ths)")
+ggsave("V4-1-1.png", width = 9, height = 6)
+
+#grid of line plots of sum of ride length in a day by type of bike and by day category
+ggplot(trips_bike_hour_daycat, aes(x = hour, y = sum, group=rideable_type, group=day_cat, color=rideable_type)) +
+  geom_line(aes(linetype=rideable_type), size=1) +
+  geom_point(size=3) +
+  facet_grid(day_cat ~ member_casual, margins = FALSE) +
+  labs(title = "How sum of ride length by type of bike and day category are diferent in a day?", fill= "type of riders",x = "hour", y = "sum of ride lenght (ths mnt)")
+ggsave("V4-1-2.png", width = 9, height = 6)
+
+#grid of line plots of median of ride length in a day by type of bike and by day category
+ggplot(trips_bike_hour_daycat, aes(x = hour, y = median_duration, group=rideable_type, group=day_cat, color=rideable_type)) +
+  geom_line(aes(linetype=rideable_type), size=1) +
+  geom_point(size=3) +
+  facet_grid(day_cat ~ member_casual, margins = FALSE) +
+  labs(title = "How median of ride length by type of bike and day category are diferent in a day?", fill= "type of riders",x = "hour", y = "median of ride lenght (mnt)")
+ggsave("V4-1-3.png", width = 9, height = 6)
+``` 
+
+##### 4.2 By type of bike + month + day category
+```{r visualize - by type of bike + month + day category}
+#bar chart of number of rides in a year by type of bike and by day category
+ggplot(trips_bike_month_daycat, aes(x = month, y = number, group=rideable_type, group=day_cat, fill=rideable_type)) +
+  geom_col(color="white") +
+  scale_x_discrete(guide = guide_axis(angle = 90)) +
+  facet_grid(day_cat ~ member_casual, margins = FALSE) +
+  labs(title = "How number of rides by types of bikes and day category are diferent in a year?", fill= "type of riders",x = "month", y = "number of rides (ths)")
+ggsave("V4-2-1.png", width = 9, height = 6)
+
+#bar chart of sum of ride length in a year by type of bike and by day category
+ggplot(trips_bike_month_daycat, aes(x = month, y = sum, group=rideable_type, group=day_cat, fill=rideable_type)) +
+  geom_col(color="white") +
+  scale_x_discrete(guide = guide_axis(angle = 90)) +
+  facet_grid(day_cat ~ member_casual, margins = FALSE) +
+  scale_x_discrete(guide = guide_axis(angle = 90)) +
+  labs(title = "How sum of ride length by type of bike and day category are diferent in a year?", fill= "type of riders",x = "month", y = "sum of ride lenght (ths mnt)")
+ggsave("V4-2-2.png", width = 9, height = 6)
+
+#bar chart of median of ride length in a year by type of bike and by day category
+ggplot(trips_bike_month_daycat, aes(x = month, y = median_duration, group=rideable_type, group=day_cat, fill=rideable_type)) +
+  geom_col(position = "dodge", color="white") +
+  scale_x_discrete(guide = guide_axis(angle = 90)) +
+  facet_grid(day_cat ~ member_casual, margins = FALSE) +
+  scale_x_discrete(guide = guide_axis(angle = 90)) +
+  labs(title = "How median of ride length by type of bike and day category are diferent in a year?", fill= "type of riders",x = "month", y = "median of ride lenght (mnt)")
+ggsave("V4-2-3.png", width = 9, height = 6)
+``` 
+ 
+##### 4.3 By ride length category + hour + day category
+```{r visualize - by ride length category + hour + day category}
+#grid of line plots of number of rides in a day by type of bike
+ggplot(trips_lengthcat_hour_daycat, aes(x = hour, y = number, group=ride_length_cat, group=day_cat, color=ride_length_cat)) +
+  geom_line(size=1) +
+  geom_point(size=3) +
+  facet_grid(day_cat ~ member_casual, margins = FALSE) +
+  labs(title = str_wrap("How number of rides by ride length category and day category are diferent in a day?",65), fill= "type of riders",x = "hour", y = "number of rides (ths)")
+ggsave("V4-3-1.png", width = 9, height = 6)
+
+#bar chart of ration of number of rides in a day by ride length category
+ggplot(trips_lengthcat_hour_daycat, aes(x = hour, y = per_num, group=ride_length_cat, group=day_cat, fill=ride_length_cat)) +
+  geom_col(color="white") +
+  scale_x_discrete(guide = guide_axis(angle = 90)) +
+  facet_grid(day_cat ~ member_casual, margins = FALSE) +
+  scale_x_discrete(guide = guide_axis(angle = 90)) +
+  labs(title = str_wrap("How ration of number of rides by ride length category and day category are diferent in a day?",65), fill= "ride length category",x = "hour", y = "ration of number of ride lenght")
+ggsave("V4-3-2.png", width = 9, height = 6)
+```
+
+##### 4.4 By ride length category + month + day category
+```{r visualize - by ride length category + month + day category}
+#grid of line plots of number of rides in a day by ride length category
+ggplot(trips_lengthcat_month_daycat, aes(x = month, y = number, group=ride_length_cat, group=day_cat, color=ride_length_cat)) +
+  geom_line(size=1) +
+  geom_point(size=3) +
+  scale_x_discrete(guide = guide_axis(angle = 90)) +
+  facet_grid(day_cat ~ member_casual, margins = FALSE) +
+  labs(title = str_wrap("How number of rides by ride length category and day category are diferent in a year?",65), color= "ride length category",x = "month", y = "number of rides (ths)")
+ggsave("V4-4-1.png", width = 9, height = 6)
+
+#bar chart of ration of number of rides in a year by ride length category
+ggplot(trips_lengthcat_month_daycat, aes(x = month, y = per_num, group=ride_length_cat, group=day_cat, fill=ride_length_cat)) +
+  geom_col(color="white") +
+  scale_x_discrete(guide = guide_axis(angle = 90)) +
+  facet_grid(day_cat ~ member_casual, margins = FALSE) +
+  scale_x_discrete(guide = guide_axis(angle = 90)) +
+  labs(title = str_wrap("How ration of number of rides by ride length category and day category are diferent in a year?", 65), fill= "ride length category",x = "month", y = "ration of number of ride lenght")
+ggsave("V4-4-2.png", width = 9, height = 6)
+```
+
+***
+
+### Key findings
+
+>  **Casual riders**
+
+* use Cyclistic bikes for a longer period of time
+* their median of ride length is high (17mnt)
+* use Cyclistic bikes circa 4x more often for 30mnt-3 hour rides
+* the number of rides is 2x bigger on weekend than on weekdays, the most journeys take place on Saturdays
+* use docked bikes more often than member riders (because they can use these bikes all year round)
+* the median of ride length is very dynamic by the hour/day/month
+* the median of ride length of docked bikes shows the highest dynamics
+* during the day, bicycle use peaks at 5pm, to this max it is constantly rising
+
+
+>  **Member riders**
+
+* use Cyclistic bikes more often
+* their median of ride length is low (10mnt)
+* use Cyclistic bikes circa 2x more often for 1-10 mnt rides
+* the number of journeys is stable during the week, the fewest journeys but the longest rides take place at the weekend (on Sundays)
+* use most classic bikes (except September-November when classic bikes are out of order), docked bikes can member riders use only on September-December
+* the median of ride length is relatively stable by the hour/day/month
+* the median of ride length is almost the same depending on the type of bicycle
+* bicycle use peaks at 8am in the morning, than fall and again peaks at 5pm
+
+***
+***
+
+## **ACT**
+
+### Recommendation for completing the analysis
+
+##### **DATA**
+* repair geographic data
+* match the rider_ID with ride_ID
+* add attribute ride_price
+
+##### **ANALYSIS**
+* analyse the distances of the destinations and the real distance travelled according to the road network
+* analyse riders by number and length of trips and distance travelled, as well as by sources and destinations
+* analyze sales by type of rider and by length of ride/type of bike/destination
+* analyse the loading of docking stations and individual bikes
+
+***
+
+### Recommendation for marketing strategy
+
+-> convert leisure riders into 
+***lovers of a healthy and sustainable lifestyle***
+
+* focus on quantifying the health, economic and environmental benefits of cycling and shared bikes
+* motivate cycling to work (competitions, price advantage,...)
+
+***
+***
+***
+
+## **THE END**
+
+> Thank you for your time!
+
+***
