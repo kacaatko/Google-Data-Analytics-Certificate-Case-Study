@@ -9,9 +9,17 @@ This repository contains code for "Capstone Project - Case Study 1" done as part
 * The data source is stored on the only [website](https://divvy-tripdata.s3.amazonaws.com/index.html) with original data from bike sharing company from Chicago. 
 
 
-The Cyclistic bike-share analysis is ahead to answer a question: ***How do annual members and casual riders use Cyclistic bikes differently?***
+The Cyclistic bike-share analysis is ahead to answer a question: 
+
+***How do annual members and casual riders use Cyclistic bikes differently?***
 
 
 ### Outputs
-* Data Visualization: [Tableau](https://public.tableau.com/views/case_study_cyclistic/CaseStudy-DifferenceBetweenTypesofRidersofSharedBikes?:language=en-US&:display_count=n&:origin=viz_share_link)
+* [Executive Summary of Case Study](https://htmlpreview.github.io/?https://github.com/kacaatko/Google-Data-Analytics-Certificate-Case-Study/blob/main/Coogle-DA-Case-study_executive-summary.html)
+* [Full R code](https://github.com/kacaatko/Google-Data-Analytics-Certificate-Case-Study/blob/main/Coogle%20DA-Case%20study-final.R)
+* [Full report of Case Study](https://htmlpreview.github.io/?https://github.com/kacaatko/Google-Data-Analytics-Certificate-Case-Study/blob/main/Coogle-DA-Case-study-final.html)
+
+* Data Visualization: 
+  + [Tableau](https://public.tableau.com/views/case_study_cyclistic/CaseStudy-DifferenceBetweenTypesofRidersofSharedBikes?:language=en-US&:display_count=n&:origin=viz_share_link)
+  + visualizations [here on GitHub](https://github.com/kacaatko/Google-Data-Analytics-Certificate-Case-Study/tree/main/vizualization)
 * Presentation: [Google Slides](https://docs.google.com/presentation/d/e/2PACX-1vSy8pZaSUMWXZ2O5cMv95g9EtH1XThaVrRvu9ys7eTErNkkxzYaCsTi5VI1lHdn_6szjNhscfk4VGpQ/pub?start=false&loop=false&delayms=3000)
