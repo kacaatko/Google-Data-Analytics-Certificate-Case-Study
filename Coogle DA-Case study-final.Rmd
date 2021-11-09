@@ -1,5 +1,5 @@
 ---
-title: "Google Data Analytics Capstone"
+title: "Google Data Analytics Capstone-Full Report"
 author: "Kateřina Kováříková"
 date: "8.11.2021"
 output: 
@@ -12,10 +12,15 @@ output:
 knitr::opts_chunk$set(message=FALSE, warning=FALSE)
 ```
 
-# **Report of Google Data Analytics Case Study - Bike Sharing**
+# **Full Report of Google Data Analytics Case Study - Bike Sharing**
 
-This report is a comprehensive documentation of my work on the study, which is the culmination of the **Google Data Analytics certification program on Coursera**. I would like to point out that this course is really amazing and Google deserves my admiration and thanks.
+This report is a comprehensive documentation of my work on the study, which is the culmination of the **Google Data Analytics certification program on Coursera**. 
 
+For Executive Summary go [here](https://htmlpreview.github.io/?https://github.com/kacaatko/Google-Data-Analytics-Certificate-Case-Study/blob/main/Coogle-DA-Case-study_executive-summary.html).
+
+I would like to point out that this course is really amazing and Google deserves my admiration and thanks.
+
+***
 I choose Case Study 1 given by Google Programme, it includes a business task, dataset, and list of specific deliverables. 
 The Case Study packet is [here](https://d3c33hcgiwev3.cloudfront.net/aacF81H_TsWnBfNR_x7FIg_36299b28fa0c4a5aba836111daad12f1_DAC8-Case-Study-1.pdf?Expires=1634947200&Signature=Ke4tMz-f2yKUWUMAKl4xwLNOPwBEkr-gva2ZjM9pehYk23pCt2A0jkTwLPl4hylGyOUz4p26i3u81vymVZml~9s0uOjaCVkvEYNonRCGYjcZvkyGN3Vr89rhrA~o-4fKgynN1F9Vf8Ni3Ig0omFmRZ5~jaLxuV7a-ydOgZUOAE8_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)
 
@@ -48,8 +53,7 @@ The results of analysis will be a starting point for new marketing strategy to c
 
 ***
 
-### The goal 
-is to produce a report with the following deliverables
+### Deliverables
 
 1. A clear statement of the business task
 2. A description of all data sources used
@@ -62,17 +66,17 @@ is to produce a report with the following deliverables
 
 ### Main questions
 
-* ***What is the problem I am trying to solve?*** 
+* **What is the problem I am trying to solve?**
   + The problem of company (goal to reach) is converting casual riders into annual members. The data analysts are scanning the real situation to find out informations and knowladge of business for reaching the goal. My task is to answer on question: How do annual members and casual riders use Cyclistic bikes differently? It means that I should identify differ in numbers of rides, distances, duration of rides, using of bike types and stations, and rides over the year/week/day. 
 
-* ***How can your insights drive business decisions?***
+* **How can your insights drive business decisions?**
   + My insights should give inputs for marketing strategy.
 
 ***
 
 ### A clear statement of the business task
 
-*To provide information and knowledge (in text and numerical form and in compelling visualisations) on the differences in the use of cyclistic bikes between types of riders. This knowledge will be an input for marketing recommendations in the new campaign.*
+To provide information and knowledge (in text and numerical form and in compelling visualisations) on the differences in the use of cyclistic bikes between types of riders. This knowledge will be an input for marketing recommendations in the new campaign.
 
 
 ***
@@ -91,14 +95,14 @@ A description of all data sources used:
 
 ## **PROCESS**
 
-### Key tasks
+**Key tasks**
 
 1. Check the data for errors.
 2. Choose your tools.
 3. Transform the data so you can work with it effectively.
 4. Document the cleaning process.
 	
-**Check the data for errors**
+### Check the data for errors
 
 By quick review I found out that there is a problem of many NA values in geographical attributes. But for this case study I will suppose that there is some problem with GPS in some bikes and it is not so important in the question of difference between casual and member riders. My analysis will be completely free of geographical data. It would otherwise be possible to investigate the distance of the source and destination of the journey, and the occupancy of each station. However, it would be appropriate to use a GIS application for such type of analysis.
 
@@ -284,7 +288,7 @@ limit_trips$hour <- as.numeric(as.character(limit_trips$hour))
 ```
 
 First check of ride_length consistency. While inspecting the table, I noticed that the lengths are very unbalanced and so I want to find out the basic parameters of the attribute.
-```{r ride_lenght check, echo = TRUE, message=FALSE, warning=FALSE, results='hide'}
+```{r ride_lenght check, echo = TRUE, message=FALSE, warning=FALSE}
 summary(limit_trips$ride_length)
 ```
 
@@ -325,7 +329,7 @@ limit_trips$day_cat <- ifelse(limit_trips$day_of_week == "sobota", "weekend",
 
 I´ve planned to filter extreme values of ride_length, so I need to find out if it's necessary.
 Lets see the difference on median and mean:
-```{r visualize ride length, echo = TRUE, results='hide'}
+```{r visualize ride length, echo = TRUE}
 limit_trips %>%
 summarise(number=n(),
           average_duration=mean(ride_length),
@@ -342,7 +346,7 @@ The difference is not that significant, so I decided not to reduce the data furt
 ***Data are ready to analyze***
 
 After preparation, first summary of ready data:
-```{r summary of ready data, echo = TRUE, results='hide'}
+```{r summary of ready data, echo = TRUE}
 summary(limit_trips)
 ```
 It seems that everything is really fine.
@@ -398,7 +402,7 @@ I line up primary lines of my analysis which include specific metrics. It is alw
  * By ride length category + hour + day category
  * By ride length category + month + day category
 
-
+***
 
 ***List of aggregated attributes:***
 
@@ -407,6 +411,8 @@ I line up primary lines of my analysis which include specific metrics. It is alw
  * median of sum of ride lengths by type of rider
  * ratio of number of rides by type of rider
  * ratio of sum of ride lengths by type of rider
+ 
+***
  
 ### 1. level
 
@@ -1458,18 +1464,26 @@ ggsave("V4-4-2.png", width = 9, height = 6)
 * bicycle use peaks at 8am in the morning, than fall and again peaks at 5pm
 
 ***
+
+### Conclusion
+
+> **Casual riders** use Cyclistic bikes for trips and as part of leisure activities, the typical user is tourist
+
+> **Member riders** use Cyclistic bikes for effective journeys, mostly to work
+
+***
 ***
 
 ## **ACT**
 
 ### Recommendation for completing the analysis
 
-##### **DATA**
+##### DATA
 * repair geographic data
 * match the rider_ID with ride_ID
 * add attribute ride_price
 
-##### **ANALYSIS**
+##### ANALYSIS
 * analyse the distances of the destinations and the real distance travelled according to the road network
 * analyse riders by number and length of trips and distance travelled, as well as by sources and destinations
 * analyze sales by type of rider and by length of ride/type of bike/destination
@@ -1479,8 +1493,7 @@ ggsave("V4-4-2.png", width = 9, height = 6)
 
 ### Recommendation for marketing strategy
 
--> convert leisure riders into 
-***lovers of a healthy and sustainable lifestyle***
+> convert leisure riders into ***lovers of a healthy and sustainable lifestyle***
 
 * focus on quantifying the health, economic and environmental benefits of cycling and shared bikes
 * motivate cycling to work (competitions, price advantage,...)
